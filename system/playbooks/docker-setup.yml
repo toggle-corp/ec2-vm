@@ -1,0 +1,66 @@
+---
+- name: Docker setup
+  hosts: localhost
+  become: true
+
+  tasks:
+    # System packages
+    - name: apt-get update
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        state: present
+        name:
+          - ca-certificates
+          - curl
+
+    - name: Add Docker GPG apt Key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      ansible.builtin.apt_repository:
+        repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install docker
+      ansible.builtin.apt:
+        state: present
+        update_cache: true
+        name:
+          - docker-ce
+
+    - name: add the user ubuntu to the docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    # Docker config
+    - name: Create /etc/docker directory if it does not exist
+      file:
+        path: /etc/docker
+        state: directory
+        mode: '0755'
+
+    - name: set default max logs size and set logs rotation
+      copy:
+        dest: '/etc/docker/daemon.json'
+        content: |
+          {
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "1g",
+              "max-file": "5"
+            }
+          }
+
+    # Start
+    - name: enable and start docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started

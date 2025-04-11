@@ -1,0 +1,83 @@
+---
+- name: Ubuntu system setup
+  hosts: localhost
+  become: true
+
+  tasks:
+    # Change user shell to zsh
+    - name: Use zsh for user ubuntu
+      ansible.builtin.user:
+        name: ubuntu
+        shell: /bin/zsh
+
+    # SSH config
+    - name: ssh secure configuration
+      copy:
+        dest: /etc/ssh/sshd_config.d/100-my_secure_config.conf
+        content: |
+          PermitRootLogin no
+          PasswordAuthentication no
+          AuthenticationMethods publickey
+
+    - name: restart ssh service
+      ansible.builtin.systemd_service:
+        name: ssh  # Ubuntu has ssh instead of sshd?
+        enabled: yes
+        state: restarted
+
+    # System packages
+    - name: apt-get update
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Update all packages to their latest version
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        state: present
+        name:
+          # Base
+          - curl
+          - git
+          - vim
+          - tree
+          - tmux
+          - zsh
+          # Helpers
+          - gdu  # View disk usages
+          - ripgrep
+          - zoxide
+          - eza
+
+    # LOGROTATE  -----------------------------------------------------------------
+    - name: Install logrotate
+      ansible.builtin.apt:
+        state: present
+        name: logrotate
+
+    - name: logrotate - enable compression
+      lineinfile:
+        path: /etc/logrotate.conf
+        regexp: '^#compress$'
+        line: 'compress'
+
+    - name: enable and start daily logs rotation, cleanup
+      systemd:
+        name: logrotate.timer
+        enabled: yes
+        state: started
+
+    - name: Custom journalctl config
+      blockinfile:
+        path: /etc/systemd/journald.conf
+        state: present
+        block: |
+          SystemMaxUse=1G
+
+    - name: restart journald
+      systemd:
+        name: systemd-journald
+        state: restarted

@@ -1,0 +1,92 @@
+### Added by Zinit's installer
+if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
+    print -P "%F{33} %F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
+    command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
+    command git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" && \
+        print -P "%F{33} %F{34}Installation successful.%f%b" || \
+        print -P "%F{160} The clone has failed.%f%b"
+fi
+
+# For config/zinit/completions/init.zsh
+export PATH="$PATH":"$HOME/.atuin/bin"
+
+source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
+
+autoload -Uz _zinit
+
+(( ${+_comps} )) && _comps[zinit]=_zinit
+# Load a few important annexes, without Turbo
+# (this is currently required for annexes)
+zinit light-mode for \
+    zdharma-continuum/zinit-annex-as-monitor \
+    zdharma-continuum/zinit-annex-bin-gem-node \
+    zdharma-continuum/zinit-annex-patch-dl \
+    zdharma-continuum/zinit-annex-rust \
+    zdharma-continuum/fast-syntax-highlighting \
+    zdharma-continuum/history-search-multi-word \
+    zsh-users/zsh-autosuggestions
+
+zinit light-mode for \
+    jeffreytse/zsh-vi-mode
+
+# Load pure theme
+zinit ice pick"async.zsh" src"pure.zsh" # with zsh-async library that's bundled with it.
+zinit light sindresorhus/pure
+
+zinit \
+    atload"zicompinit; zicdreplay" \
+    blockf \
+    lucid \
+    for \
+      wait"0" @"$HOME/.dotfiles/config/zinit/completions" \
+      wait @zsh-users/zsh-completions
+
+### End of Zinit's installer chunk
+
+# History Configuration
+HISTSIZE=10000000
+SAVEHIST=10000000
+HISTFILE="$HOME/.zsh_history"
+
+setopt EXTENDED_HISTORY          # Write the history file in the ":start:elapsed;command" format.
+setopt HIST_EXPIRE_DUPS_FIRST    # Expire duplicate entries first when trimming history.
+setopt HIST_IGNORE_DUPS          # Don't record an entry that was just recorded again.
+setopt HIST_IGNORE_ALL_DUPS      # Delete old recorded entry if new entry is a duplicate.
+setopt HIST_FIND_NO_DUPS         # Do not display a line previously found.
+setopt HIST_SAVE_NO_DUPS         # Don't write duplicate entries in the history file.
+setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording entry.
+setopt HIST_VERIFY               # Don't execute immediately upon history expansion.
+
+# Environment variables
+export PATH="$PATH":"$HOME/.local/bin":"$HOME/.dotfiles/commands":"$HOME/.local/share/vim/plugged/fzf/bin"
+export EDITOR=vim
+export ZVM_VI_EDITOR=$EDITOR
+export VISUAL=$EDITOR
+export RIPGREP_CONFIG_PATH=$HOME/.ripgreprc
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# MANUAL using bat
+alias docker-compose="docker compose"
+alias nvim=vim
+alias ols="/usr/bin/ls"
+alias ls="eza"
+alias ocat=""
+alias ll='eza -la --git'
+# Zoxide NOTE: zi conflicts with zinit zi, so using custom zii for interactive
+alias z="__zoxide_z"
+alias zii="__zoxide_zi"
+
+# The plugin will auto execute this zvm_after_init function
+function zvm_after_init() {
+    # this would bind ctrl + space to accept the current suggestion.
+    bindkey '^ ' autosuggest-accept
+
+    # From tools/fzf-git/fzf-git.sh
+    zvm_bindkey viins "^P" up-line-or-beginning-search
+    zvm_bindkey viins "^N" down-line-or-beginning-search
+    for o in files branches tags remotes hashes stashes lreflogs each_ref; do
+        eval "zvm_bindkey viins '^g^${o[1]}' fzf-git-$o-widget"
+        eval "zvm_bindkey viins '^g${o[1]}' fzf-git-$o-widget"
+    done
+}

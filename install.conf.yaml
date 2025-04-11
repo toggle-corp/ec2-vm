@@ -1,0 +1,46 @@
+- defaults:
+    link:
+      relink: true
+      create: true
+
+- clean: ['~']
+
+- link:
+    # Directories
+    ~/.dotfiles/: ""
+    ~/.vim/: config/vim/
+    ~/.config/tmux/plugins/tpm/: tools/tmux-tpm/
+    # Files
+    ~/proxy: config/proxy
+    ~/README.md: vm-readme/README.md
+    ~/.gitconfig: config/git.conf
+    ~/.zshrc: config/zshrc
+    ~/.ripgreprc: config/ripgreprc
+    ~/.config/atuin/config.toml: config/atuin.toml
+    ~/.config/tmux/tmux.conf: config/tmux.conf
+
+- create:
+    - ~/.local/bin
+    - ~/services
+    - ~/repo
+
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
+  -
+    description: Install nvim plugins
+    stderr: true
+    command: |
+      curl \
+        -fLo ~/.vim/autoload/plug.vim \
+        --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  -
+    description: Install plugins
+    stderr: true
+    stdin: true
+    stdout: true
+    command: vim +PlugInstall +qall
+  # Misc
+  -
+    description: Install tmux plugins using tpm
+    stderr: true
+    command: ~/.dotfiles/tools/tmux-tpm/bin/install_plugins

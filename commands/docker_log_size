@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [[ $UID != 0 ]]; then
+    echo "Please run this script with sudo:"
+    echo "sudo $0 $*"
+    exit 1
+fi
+
+# Get Container IDs
+CONTAINER_IDS=$(docker ps -qa)
+
+printf "%-15s %-10s\n" "Container" "Log Size"
+
+# Loop through each Container ID
+for CONTAINER_ID in $CONTAINER_IDS; do
+  # Get the Container Name
+  CONTAINER_NAME=$(docker inspect --format='{{index .Config.Labels "com.docker.compose.service" }}' $CONTAINER_ID)
+  CONTAINER_LOG_FILE=$(docker inspect --format='{{.LogPath}}' $CONTAINER_ID)
+
+  # Get the Log Size
+  LOG_SIZE=$(du -sh $CONTAINER_LOG_FILE | cut -f1)
+
+  # Print Container Name and Log Size
+  printf "%-15s %-10s\n" "${CONTAINER_NAME}" "${LOG_SIZE}"
+done | sort -rh -k2

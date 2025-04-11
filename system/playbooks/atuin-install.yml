@@ -1,0 +1,7 @@
+---
+- name: Atuin setup
+  hosts: localhost
+
+  tasks:
+    - name: Install from github
+      shell: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/atuinsh/atuin/releases/latest/download/atuin-installer.sh | ATUIN_NO_MODIFY_PATH=1 sh

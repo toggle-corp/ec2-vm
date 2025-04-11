@@ -1,0 +1,30 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+log:
+  level: INFO
+api:
+  dashboard: false
+  insecure: false
+
+certificatesresolvers:
+  myresolver:
+    acme:
+      tlschallenge: true
+      email: dev@togglecorp.com
+      storage: /letsencrypt/acme.json
+
+entryPoints:
+  web:
+    address: :80
+  websecure:
+    address: :443
+    asDefault: true
+    http:
+      tls: true
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    network: traefik-proxy
+    exposedByDefault: false

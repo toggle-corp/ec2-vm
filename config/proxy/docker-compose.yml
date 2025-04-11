@@ -1,0 +1,23 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.3
+    restart: unless-stopped
+    ports:
+      # The HTTP port
+      - "80:80"
+      - "443:443"
+      # - "127.0.0.1:8080:8080"  # The Web UI (enabled by traefik.yaml:api.insecure=true)
+    volumes:
+      - ./letsencrypt:/letsencrypt
+      - /etc/localtime:/etc/localtime:ro
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Config
+      - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
+    networks:
+      - traefik-proxy
+
+networks:
+  # Use this to create this `docker network create traefik-proxy`
+  traefik-proxy:
+    external: true

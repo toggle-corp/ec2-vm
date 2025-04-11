@@ -1,0 +1,11 @@
+---
+- name: Setup initial VM configs
+  hosts: localhost
+
+  tasks:
+    - name: Install git
+      become: true
+      ansible.builtin.apt:
+        update_cache: yes
+        state: present
+        name: git

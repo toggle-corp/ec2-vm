@@ -1,0 +1,10 @@
+# vim
+config/vim/autoload/
+config/vim/plugged/
+config/vim/.netrwhist
+
+# proxy
+config/proxy/nginx-certs/
+
+# Generic
+*.swo
