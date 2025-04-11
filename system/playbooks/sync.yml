@@ -4,10 +4,16 @@
   become: true
 
   tasks:
+    - name: Get original user (before become)
+      command: whoami
+      register: original_user
+      become: false
+      changed_when: false
+
     # Change user shell to zsh
-    - name: "Use zsh for user {{ ansible_user_id }}"
+    - name: "Use zsh for user {{ original_user.stdout }}"
       ansible.builtin.user:
-        name: "{{ ansible_user_id }}"
+        name: "{{ original_user.stdout }}"
         shell: /bin/zsh
 
     # SSH config

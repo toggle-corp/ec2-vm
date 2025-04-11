@@ -4,6 +4,12 @@
   become: true
 
   tasks:
+    - name: Get original user (before become)
+      command: whoami
+      register: original_user
+      become: false
+      changed_when: false
+
     # System packages
     - name: apt-get update
       ansible.builtin.apt:
@@ -33,9 +39,9 @@
         name:
           - docker-ce
 
-    - name: "add the user {{ ansible_user_id }} to the docker group"
+    - name: "add the user {{  original_user.stdout  }} to the docker group"
       user:
-        name: "{{ ansible_user_id }}"
+        name: "{{  original_user.stdout  }}"
         groups: docker
         append: yes
 
