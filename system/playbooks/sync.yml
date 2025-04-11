@@ -7,7 +7,7 @@
     # Change user shell to zsh
     - name: Use zsh for user ubuntu
       ansible.builtin.user:
-        name: ubuntu
+        name: {{ ansible_user_id }}
         shell: /bin/zsh
 
     # SSH config
