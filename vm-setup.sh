@@ -32,9 +32,9 @@ function vm_setup {
     # -- Run vm_setup playbook
     ANSIBLE_PLAYBOOKS_DIR="$ROOT_REPO_DIR/system/playbooks"
 
-    ansible-playbook --ask-become-pass --diff $ANSIBLE_PLAYBOOKS_DIR/sync.yml
-    ansible-playbook --ask-become-pass --diff $ANSIBLE_PLAYBOOKS_DIR/docker-setup.yml
-    ansible-playbook --ask-become-pass --diff $ANSIBLE_PLAYBOOKS_DIR/atuin-install.yml
+    ansible-playbook --diff $ANSIBLE_PLAYBOOKS_DIR/sync.yml
+    ansible-playbook --diff $ANSIBLE_PLAYBOOKS_DIR/docker-setup.yml
+    ansible-playbook --diff $ANSIBLE_PLAYBOOKS_DIR/atuin-install.yml
 
     cd $ROOT_REPO_DIR
     ./install
