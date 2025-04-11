@@ -5,7 +5,7 @@
 
   tasks:
     # Change user shell to zsh
-    - name: Use zsh for user ubuntu
+    - name: "Use zsh for user {{ ansible_user_id }}"
       ansible.builtin.user:
         name: "{{ ansible_user_id }}"
         shell: /bin/zsh

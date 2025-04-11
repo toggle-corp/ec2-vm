@@ -33,7 +33,7 @@
         name:
           - docker-ce
 
-    - name: add the user ubuntu to the docker group
+    - name: "add the user {{ ansible_user_id }} to the docker group"
       user:
         name: "{{ ansible_user_id }}"
         groups: docker
