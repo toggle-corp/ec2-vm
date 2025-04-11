@@ -11,7 +11,7 @@ certificatesresolvers:
   myresolver:
     acme:
       tlschallenge: true
-      email: dev@togglecorp.com
+      # email: ADD your email here
       storage: /letsencrypt/acme.json
 
 entryPoints:
