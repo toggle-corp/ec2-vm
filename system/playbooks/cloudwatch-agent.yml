@@ -1,0 +1,41 @@
+---
+- name: Install CloudWatch Agent
+  hosts: localhost
+  become: true
+
+  vars:
+    config_file_path: "{{ playbook_dir }}/cloudwatch_agent_config.json"
+
+  tasks:
+    - name: Read Config
+      ansible.builtin.shell: "cat \"{{ config_file_path }}\""
+      register: json_raw
+
+    - name: Parse and display JSON nicely
+      ansible.builtin.set_fact:
+        parsed_json: "{{ json_raw.stdout | from_json }}"
+
+    - name: Show parsed JSON content
+      ansible.builtin.debug:
+        var: parsed_json
+
+    - name: Prompt for confirmation
+      ansible.builtin.pause:
+        prompt: "Review the JSON config. Press Enter to continue or Ctrl+C to abort"
+
+    - name: Download CloudWatch Agent installer
+      get_url:
+        url: https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+        dest: /tmp/amazon-cloudwatch-agent.deb
+        mode: '0644'
+
+    - name: Install CloudWatch Agent
+      shell: dpkg -i -E /tmp/amazon-cloudwatch-agent.deb
+
+    - name: Copy config file
+      template:
+        src: "{{ config_file_path }}"
+        dest: /opt/aws/amazon-cloudwatch-agent/bin/config.json
+
+    - name: Starting cwagent
+      shell: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json
