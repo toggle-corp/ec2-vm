@@ -59,6 +59,7 @@ setopt HIST_VERIFY               # Don't execute immediately upon history expans
 
 # Environment variables
 export PATH="$PATH":"$HOME/.local/bin":"$HOME/.dotfiles/commands":"$HOME/.local/share/vim/plugged/fzf/bin"
+export TERM=screen-256color
 export EDITOR=vim
 export ZVM_VI_EDITOR=$EDITOR
 export VISUAL=$EDITOR
