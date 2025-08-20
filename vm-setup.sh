@@ -38,6 +38,9 @@ function vm_setup {
 
     cd $ROOT_REPO_DIR
     ./install
+
+    echo "If not enabled and you want to do passwordless sudo run this"
+    echo "ansible-playbook --ask-become-pass --diff ~/dotfiles/system/playbooks/passwordless-sudo.yml"
 }
 
 git_pull
