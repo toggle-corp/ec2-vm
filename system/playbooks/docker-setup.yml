@@ -22,14 +22,16 @@
           - ca-certificates
           - curl
 
-    - name: Add Docker GPG apt Key
-      ansible.builtin.apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - name: Add Docker Repository
-      ansible.builtin.apt_repository:
-        repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    - name: Add Docker apt repository using deb822_repository
+      ansible.builtin.deb822_repository:
+        name: docker
+        types: deb
+        uris: https://download.docker.com/linux/ubuntu
+        signed_by: https://download.docker.com/linux/ubuntu/gpg
+        components: [stable]
+        architectures: "amd64"
+        suites: ["{{ ansible_distribution_release }}"]
+        enabled: true
         state: present
 
     - name: Install docker
