@@ -62,3 +62,38 @@ networks:
 
 > [!TIP]
 > `default` network behavior: https://docs.docker.com/reference/compose-file/networks/
+
+## Development
+Add this to `.env`
+
+```bash
+ACME_EMAIL=test@example.com
+COMPOSE_FILE=docker-compose.yml:docker-compose-dev.yml
+```
+
+Start
+```bash
+docker network create traefik-proxy
+
+docker compose up
+```
+
+Test using curl
+```bash
+# Redirect
+curl -i http://whoami.localhost
+
+# Response
+curl --insecure https://whoami.localhost
+```
+
+Cleanup
+```bash
+docker compose down
+
+docker network remove traefik-proxy
+```
+
+## Related
+
+- Configuration examples: https://github.com/bluepuma77/traefik-best-practice
