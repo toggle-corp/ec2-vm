@@ -8,22 +8,31 @@ api:
   insecure: false
 
 certificatesresolvers:
-  myresolver:
+  letsencrypt:
     acme:
       tlschallenge: true
-      # email: ADD your email here
       storage: /letsencrypt/acme.json
+      # email: NOTE: This is added from docker-compose
 
 entryPoints:
   web:
     address: :80
+    http:
+      redirections:
+        entrypoint:
+          to: websecure
+          scheme: https
   websecure:
     address: :443
     asDefault: true
     http:
-      tls: true
+      tls:
+        certresolver: letsencrypt
 
 providers:
+  file:
+    filename: "/etc/traefik/dynamic.yaml"
+    watch: true
   docker:
     endpoint: "unix:///var/run/docker.sock"
     network: traefik-proxy
