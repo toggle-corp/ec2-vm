@@ -1,0 +1,55 @@
+---
+- name: Configure swap on Ubuntu
+  hosts: localhost
+  become: true
+
+  vars:
+    swap_file_path: /swapfile
+    swap_file_size: 4G
+    swappiness: 10
+
+  tasks:
+    - name: Check if swap file already exists
+      ansible.builtin.stat:
+        path: "{{ swap_file_path }}"
+      register: swap_file_check
+
+    - name: Create swap file
+      ansible.builtin.command:
+        cmd: "fallocate -l {{ swap_file_size }} {{ swap_file_path }}"
+        creates: "{{ swap_file_path }}"
+      when: not swap_file_check.stat.exists
+
+    - name: Set swap file permissions to 600
+      ansible.builtin.file:
+        path: "{{ swap_file_path }}"
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Format file as swap
+      ansible.builtin.command:
+        cmd: "mkswap {{ swap_file_path }}"
+      when: not swap_file_check.stat.exists
+
+    - name: Enable swap
+      ansible.builtin.command:
+        cmd: "swapon {{ swap_file_path }}"
+      when: not swap_file_check.stat.exists
+
+    - name: Add swap entry to /etc/fstab
+      ansible.posix.mount:
+        name: none
+        src: "{{ swap_file_path }}"
+        fstype: swap
+        opts: sw
+        passno: '0'
+        dump: '0'
+        state: present
+
+    - name: Set vm.swappiness
+      ansible.posix.sysctl:
+        name: vm.swappiness
+        value: "{{ swappiness }}"
+        state: present
+        reload: true
